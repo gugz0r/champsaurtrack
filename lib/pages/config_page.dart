@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:trackmyrun/services/config_service.dart';
-import 'package:flutter_background_service/flutter_background_service.dart';
 
 class ConfigPage extends StatefulWidget {
   const ConfigPage({Key? key}) : super(key: key);

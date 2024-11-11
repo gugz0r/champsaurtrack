@@ -30,11 +30,9 @@ class _MyHomePageState extends State<MyHomePage> {
     _loadLogs();
 
     // Listen to background service for data updates
-    FlutterBackgroundService().on("update").listen((event) {
-      if (event != null) {
-        _loadLastPushTime();
-        _loadLogs();
-      }
+    FlutterBackgroundService().on('update').listen((event) {
+      _loadLastPushTime();
+      _loadLogs();
     });
   }
 
@@ -107,7 +105,6 @@ class _MyHomePageState extends State<MyHomePage> {
           if (permission != LocationPermission.always &&
               permission != LocationPermission.whileInUse) {
             // Permissions are not granted
-            // Handle accordingly
             setState(() {
               _tracking = false;
             });
@@ -120,7 +117,11 @@ class _MyHomePageState extends State<MyHomePage> {
         });
 
         // Start the background service
-        FlutterBackgroundService().startService();
+        final service = FlutterBackgroundService();
+        var isRunning = await service.isRunning();
+        if (!isRunning) {
+          await service.startService();
+        }
       } else {
         setState(() {
           _tracking = false;
@@ -130,7 +131,8 @@ class _MyHomePageState extends State<MyHomePage> {
       setState(() {
         _tracking = false;
       });
-      FlutterBackgroundService().invoke("stopService");
+      // Stop the background service
+      FlutterBackgroundService().invoke('stopService');
     }
   }
 
@@ -141,7 +143,7 @@ class _MyHomePageState extends State<MyHomePage> {
         return AlertDialog(
           title: const Text('Location Services Disabled'),
           content:
-          const Text('Please enable location services to use this feature.'),
+              const Text('Please enable location services to use this feature.'),
           actions: [
             TextButton(
               child: const Text('OK'),
@@ -178,8 +180,12 @@ class _MyHomePageState extends State<MyHomePage> {
 
               if (_tracking) {
                 // Restart the background service to use the new configuration
-                FlutterBackgroundService().invoke("stopService");
-                FlutterBackgroundService().startService();
+                FlutterBackgroundService().invoke('stopService');
+                final service = FlutterBackgroundService();
+                var isRunning = await service.isRunning();
+                if (!isRunning) {
+                  await service.startService();
+                }
               }
             },
           ),
@@ -191,11 +197,11 @@ class _MyHomePageState extends State<MyHomePage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               if (_configError != null)
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.0),
                   child: Text(
                     'Please provide your name and bib number by configuring the app. Click on the settings icon at the top right.',
-                    style: const TextStyle(color: Colors.red),
+                    style: TextStyle(color: Colors.red),
                     textAlign: TextAlign.center,
                   ),
                 )

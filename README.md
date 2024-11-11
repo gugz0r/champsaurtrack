@@ -7,3 +7,4 @@ My first Flutter project, for fun and profit.
 Launch the app !
 Run.
 Enjoy.
+

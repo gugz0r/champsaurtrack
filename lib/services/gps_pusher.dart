@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart'; // For formatting date and time
+import 'package:flutter_background_service/flutter_background_service.dart';
 import 'log_service.dart'; // Import LogService
 
 class GpsPusher {
@@ -64,18 +65,27 @@ class GpsPusher {
         // Convert to JSON
         String jsonData = jsonEncode(data);
 
+        // Print the JSON data for debugging
+        print('JSON Data being sent: $jsonData');
+
         // Send HTTPS POST request
         final response = await http.post(
-          Uri.parse('https://track.dialup.fr/api.php'), // Changed to HTTPS
+          Uri.parse('https://track.dialup.fr/api.php'),
           headers: {"Content-Type": "application/json"},
           body: jsonData,
         );
+
+        // Print the server's response
+        print('Server response: ${response.body}');
 
         if (response.statusCode == 200) {
           print('Location pushed successfully: $jsonData');
 
           // Save the timestamp of the successful push
           await LogService.saveLastPushTime(DateTime.now());
+
+          // Send an update to the UI using invoke()
+          FlutterBackgroundService().invoke("update");
 
           // Add log entry
           String logMessage =
